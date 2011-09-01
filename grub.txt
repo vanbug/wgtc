@@ -1,0 +1,5 @@
+head -n 200 a.csv | perl groupEp.pl > c.csv # pulls 200 files and send it to perl
+perl -p -i -e 'last if /^$/' a.csv	    # removes last line using pattern match 
+
+
+
