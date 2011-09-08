@@ -67,8 +67,6 @@ yed=function(x){return(which((mapply(match,x,geneClubs$EP_PLATE_NAME))=='1',arr.
 red=function(x){return(yed(x))}
 
 
-
-
 # 2nd.Sep.2011
 # Targeting Efficiencies vs EP well names
 geneFractionage=fractionAge(geneClubs$EPD_DISTRIBUTE,geneClubs$TARGETED_TRAP,geneClubs$EPD_WELL_NAME)
@@ -78,22 +76,21 @@ geneFractionage[which(geneFractionage=='NaN')]=0
 # returns unique value index
 # sort geneClubs always as it is not sorted in the csv file
 geneClubsEP=geneClubs[order(geneClubs$EP_PLATE_NAME),]
-rap=function(x){return(which(x==geneClubs$EP_PLATE_NAME,arr.ind=TRUE))}
+rap=function(x){return(which(x==geneClubsEP$EP_PLATE_NAME,arr.ind=TRUE))}
 
-epPlateNameIndex=lapply(unique(geneClubs$EP_PLATE_NAME),rap)
+epPlateNameIndex=lapply(unique(geneClubsEP$EP_PLATE_NAME),rap)
 epPlateIndex=unlist(lapply(epPlateNameIndex,length))
 # sorts the data.frame with counts of epPlateNames per epPlates
-epPlateName=data.frame(epPlateNames=as.character(unique(geneClubs$EP_PLATE_NAME)),epCounts=epPlateIndex)
-#epPlateName=epPlateName[order(epPlateName$epPlateNames),]
+epPlateName=data.frame(epPlateNames=as.character(unique(geneClubsEP$EP_PLATE_NAME)),epCounts=epPlateIndex)
 
 # % efficiencies per epPlateName
-oriGeneEPNameIndex=unique(geneClubs$EP_PLATE_NAME)
+oriGeneEPNameIndex=unique(geneClubsEP$EP_PLATE_NAME)
 
-unwindEPDwell=function(x){return(sum(geneClubs$EPD_WELL_NAME[unlist(x)]))}
-unwindEPDDis=function(x){return(sum(geneClubs$EPD_DISTRIBUTE[unlist(x)]))}
-unwindEPDTT=function(x){return(sum(geneClubs$TARGETED_TRAP[unlist(x)]))}
+unwindEPDwell=function(x){return(sum(geneClubsEP$EPD_WELL_NAME[unlist(x)]))}
+unwindEPDDis=function(x){return(sum(geneClubsEP$EPD_DISTRIBUTE[unlist(x)]))}
+unwindEPDTT=function(x){return(sum(geneClubsEP$TARGETED_TRAP[unlist(x)]))}
 
-# storing EPD_wells and EPD_dis and EPD_TTs from geneClubs for each EP plate names
+# storing EPD_wells and EPD_dis and EPD_TTs from geneClubs for each EP plate names - we have to do other way around
 geneClubEPDWELL=unlist(lapply(epPlateNameIndex,unwindEPDwell))
 geneClubEPDDis=unlist(lapply(epPlateNameIndex,unwindEPDDis))
 geneClubTT=unlist(lapply(epPlateNameIndex,unwindEPDTT))
@@ -107,26 +104,22 @@ geneClubFractionage[which(geneClubFractionage=='NaN')]=0
 
 plot(epF$MGI_GT_COUNT,epF$fractionAge,xlab="Gene trap count",ylab="Fractions of electroporations",main="Gene Traps counts vs Fractions of Electroporations((dis+tarTraps)/total electroporations)",sub="Each point is a gene",col="darkgreen")
 
-
 plot(epF$MGI_GT_COUNT,epF$fractionAge,xlab="Gene trap count",ylab="Fractions of electroporations",xlim=c(0,100))
 
 
-
-
-
-
 # fetches genes per EP plate
-naive<-function(x){return(geneClubs[x,])}
+naive<-function(x){return(geneClubsEP[x,])}
 genesperEP=lapply(epPlateNameIndex,naive)
 
 #
 gEPeff=function(x){return((x$EPD_DISTRIBUTE+x$TARGETED_TRAP)/x$EPD_WELL_NAME)}
 gEPeffIndex=lapply(genesperEP,gEPeff)
 
+# finding which is NaN as EPD_DISTRIBUTE is 0 and replacing the NaN
+replaceNaN=function(x){return(as.numeric(gsub('NaN',0,x)))}
+geneEff=lapply(gEPeffIndex,replaceNaN)
 
-# finding which is NaN as EPD_DISTRIBUTE is 0
-a=function(x){which(x=="TRUE")}
-b=lapply(gEPeffIndex,function(x){which(x=='NaN')})
+
 
 
 
